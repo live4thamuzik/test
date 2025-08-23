@@ -42,7 +42,7 @@ log_header "Stage 4: Post-Installation (Chroot) Configuration"
 local script_root_dir="$(dirname "${BASH_SOURCE[0]}")"
 
 # This variable will define the directory name inside the chroot where the scripts will be copied.
-local chroot_target_dir="/archinstall"
+local chroot_target_dir="archinstall"
 local install_script_path_in_chroot="/mnt/$chroot_target_dir"
 
 log_info "Creating chroot script directory at $install_script_path_in_chroot..."
