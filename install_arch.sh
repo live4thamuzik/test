@@ -35,56 +35,41 @@ main() {
     install_base_system_target || error_exit "Base system installation failed."
 
     # Stage 4: Chroot Configuration
-    log_header "Stage 4: Post-Installation (Chroot) Configuration"
-    # Copy essential script files into /mnt for chroot execution
-    log_info "Copying chroot configuration files to /mnt..."
-    local script_root_dir="$(dirname "${BASH_SOURCE[0]}")"
-    local chroot_target_dir="/archl4tm"
-    local install_script_path_in_chroot="/mnt/$chroot_target_dir"
+log_header "Stage 4: Post-Installation (Chroot) Configuration"
 
-    mkdir -p "$install_script_path_in_chroot" || error_exit "Failed to create target directory '$install_script_path_in_chroot'."
-    
-    # Copy chroot_config.sh
-    if [ ! -f "$script_root_dir/chroot_config.sh" ]; then
-        error_exit "Source file not found: $script_root_dir/chroot_config.sh. Cannot proceed."
-    fi
-    log_info "Attempting to copy $script_root_dir/chroot_config.sh..."
-    cp "$script_root_dir/chroot_config.sh" "$install_script_path_in_chroot/" || error_exit "Failed to copy chroot_config.sh."
-    if [ ! -f "$install_script_path_in_chroot/chroot_config.sh" ]; then
-        error_exit "Destination file NOT FOUND after copying: $install_script_path_in_chroot/chroot_config.sh."
-    fi
+# This is where we'll define the script's root directory.
+# It uses BASH_SOURCE to get the location of the currently executing script.
+local script_root_dir="$(dirname "${BASH_SOURCE[0]}")"
 
-    # Copy config.sh
-    if [ ! -f "$script_root_dir/config.sh" ]; then
-        error_exit "Source file not found: $script_root_dir/config.sh. Cannot proceed."
-    fi
-    log_info "Attempting to copy $script_root_dir/config.sh..."
-    cp "$script_root_dir/config.sh" "$install_script_path_in_chroot/" || error_exit "Failed to copy config.sh to chroot."
-    if [ ! -f "$install_root_dir/config.sh" ]; then
-        error_exit "Destination file NOT FOUND after copying: $script_root_dir/config.sh."
-    fi
+# This variable will define the directory name inside the chroot where the scripts will be copied.
+local chroot_target_dir="/archinstall"
+local install_script_path_in_chroot="/mnt/$chroot_target_dir"
 
-    # Copy utils.sh
-    if [ ! -f "$script_root_dir/utils.sh" ]; then
-        error_exit "Source file not found: $script_root_dir/utils.sh. Cannot proceed."
-    fi
-    log_info "Attempting to copy $script_root_dir/utils.sh..."
-    cp "$script_root_dir/utils.sh" "$install_script_path_in_chroot/" || error_exit "Failed to copy utils.sh to chroot."
-    if [ ! -f "$install_script_path_in_chroot/utils.sh" ]; then
-        error_exit "Destination file NOT FOUND after copying: $install_script_path_in_chroot/utils.sh."
-    fi
-    
-    log_info "Setting permissions for chroot scripts..."
-    arch-chroot /mnt chmod +x "$chroot_target_dir/chroot_config.sh" || error_exit "Failed to make chroot script executable."
-    arch-chroot /mnt chmod +x "$chroot_target_dir/config.sh" || error_exit "Failed to make chroot config executable."
-    arch-chroot /mnt chmod +x "$chroot_target_dir/utils.sh" || error_exit "Failed to make chroot utils executable."
+log_info "Creating chroot script directory at $install_script_path_in_chroot..."
+mkdir -p "$install_script_path_in_chroot" || error_exit "Failed to create target directory '$install_script_path_in_chroot'."
 
-    log_info "Executing chroot configuration script inside chroot..."
-    
-    # NEW: Run the chroot script with the new helper function
-    run_in_chroot "/bin/bash $chroot_target_dir/chroot_config.sh" || error_exit "Chroot configuration failed."
+# Use a single `cp` command to copy all necessary scripts.
+# We'll copy all .sh files from the source directory.
+log_info "Copying chroot configuration files from '$script_root_dir' to '$install_script_path_in_chroot'..."
+cp -v "$script_root_dir/"*.sh "$install_script_path_in_chroot/" || error_exit "Failed to copy all necessary scripts to chroot."
 
-    log_info "Chroot setup complete."
+# Verify the files exist at the destination
+if [ ! -f "$install_script_path_in_chroot/chroot_config.sh" ] || \
+   [ ! -f "$install_script_path_in_chroot/config.sh" ] || \
+   [ ! -f "$install_script_path_in_chroot/utils.sh" ]; then
+    error_exit "One or more required script files not found in destination directory after copying."
+fi
+
+log_info "Setting permissions for chroot scripts..."
+# We can use a single `find` command to find all the copied files
+# and apply the executable permission at once.
+find "$install_script_path_in_chroot" -type f -name "*.sh" -exec arch-chroot /mnt chmod +x {} \; || error_exit "Failed to make chroot scripts executable."
+
+log_info "Executing chroot configuration script inside chroot..."
+# We can now use the new `run_in_chroot` function as you've added.
+run_in_chroot "/bin/bash $chroot_target_dir/chroot_config.sh" || error_exit "Chroot configuration failed."
+
+log_info "Chroot setup complete."
     
     # Stage 5: Finalization
     log_header "Stage 5: Finalizing Installation"
