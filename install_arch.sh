@@ -13,7 +13,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/disk_strategies.sh"
 
 # --- Main Installation Function ---
 main() {
-    log_header "ARCHL4TM: Tasteful Arch Linux Installation"
+    log_header "ArchInstall: Arch Linux Installation"
 
     check_prerequisites || error_exit "Prerequisite check failed."
 
