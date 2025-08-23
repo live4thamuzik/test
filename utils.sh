@@ -601,11 +601,11 @@ run_in_chroot() {
     return "$rc"
 }
 
-# --- Final Cleanup ---
+# --- Final Cleanup Function ---
 final_cleanup() {
-    log_info "Performing final cleanup..."
-    safe_umount /mnt/boot/efi || true
-    safe_umount /mnt/boot || true
-    safe_umount /mnt || true
-    log_info "Cleanup complete."
+    log_info "Unmounting all filesystems under /mnt..."
+    # The -R flag recursively unmounts all filesystems rooted at the specified directory.
+    # The script will exit if this command fails due to 'set -e'.
+    umount -R /mnt
+    log_success "All temporary filesystems unmounted successfully."
 }
