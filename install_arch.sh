@@ -63,7 +63,8 @@ fi
 log_info "Setting permissions for chroot scripts..."
 # We can use a single `find` command to find all the copied files
 # and apply the executable permission at once.
-find "$install_script_path_in_chroot" -type f -name "*.sh" -exec arch-chroot /mnt chmod +x {} \; || error_exit "Failed to make chroot scripts executable."
+#find "$install_script_path_in_chroot" -type f -name "*.sh" -exec arch-chroot /mnt chmod +x {} \; || error_exit "Failed to make chroot scripts executable."
+chmod +x "$install_script_path_in_chroot"/*.sh || error_exit "Failed to make chroot scripts executable."
 
 log_info "Executing chroot configuration script inside chroot..."
 # We can now use the new `run_in_chroot` function as you've added.
