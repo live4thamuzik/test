@@ -569,13 +569,13 @@ save_current_config() {
     log_info "Configuration saved successfully to $output_file."
 }
 
-run_in_chroot() {
-    log_info "Executing chroot script"
-    arch-chroot /mnt /bin/bash -c ./chroot_config.sh || error_exit "Chroot script execution failed: chroot_config.sh"
-    
-    log_info "Chroot script executed successfully."
-    return 0
-}
+#run_in_chroot() {
+#    log_info "Executing chroot script"
+#    arch-chroot /mnt /bin/bash -c ./chroot_config.sh || error_exit "Chroot script execution failed: chroot_config.sh"
+#    
+#    log_info "Chroot script executed successfully."
+#    return 0
+#}
 
 # --- Final Cleanup Function ---
 final_cleanup() {
