@@ -67,8 +67,7 @@ log_info "Setting permissions for chroot scripts..."
 chmod +x "$install_script_path_in_chroot"/*.sh || error_exit "Failed to make chroot scripts executable."
 
 log_info "Executing chroot configuration script inside chroot..."
-# We can now use the new `run_in_chroot` function as you've added.
-run_in_chroot "/bin/bash $chroot_target_dir/chroot_config.sh" || error_exit "Chroot configuration failed."
+run_in_chroot "/archinstall/chroot_config.sh" || error_exit "Chroot configuration failed."
 
 log_info "Chroot setup complete."
     
