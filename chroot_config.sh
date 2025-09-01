@@ -6,9 +6,8 @@
 set -euo pipefail
 
 # Source its own copy of config.sh and utils.sh from its copied location
-SOURCE_DIR_IN_CHROOT="./archinstall" # Path where install_arch.sh copies these scripts
-source "$SOURCE_DIR_IN_CHROOT/config.sh"
-source "$SOURCE_DIR_IN_CHROOT/utils.sh"
+source ./config.sh
+source ./utils.sh
 
 # Note: Variables like INSTALL_DISK, ROOT_PASSWORD, etc. are now populated from the environment passed by install_arch.sh
 # Associative arrays like PARTITION_UUIDs are also exported (-A).
