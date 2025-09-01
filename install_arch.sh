@@ -35,27 +35,24 @@ main() {
     install_base_system_target || error_exit "Base system installation failed."
 
     # Stage 4: Chroot Configuration
-log_header "Stage 4: Post-Installation (Chroot) Configuration"
+    log_header "Stage 4: Post-Installation (Chroot) Configuration"
 
-# Use a single `cp` command to copy all necessary scripts.
-# We'll copy all .sh files from the source directory.
-log_info "Copying chroot configuration files from live installer to /mnt..."
-cp -r -v ./chroot_config.sh ./config.sh ./utils.sh ./disk_strategies.sh ./dialogs.sh /mnt || error_exit "Failed to copy all necessary scripts to chroot."
+    log_info "Copying chroot configuration files to /mnt..."
+    cp -v ./chroot_config.sh ./config.sh ./utils.sh ./disk_strategies.sh ./dialogs.sh /mnt || error_exit "Failed to copy all necessary scripts to chroot."
 
-# Verify the files exist at the destination
-if [ ! -f "/mnt/chroot_config.sh" ] || \
-   [ ! -f "/mnt/config.sh" ] || \
-   [ ! -f "/mnt/utils.sh" ] || \
-   [ ! -f "/mnt/disk_strategies.sh" ]
-   [ ! -f "/mnt/dialogs.sh" ]; then
-    error_exit "One or more required script files not found in destination directory after copying."
-fi
+    # Verify the files exist at the destination
+    if [ ! -f "/mnt/chroot_config.sh" ] || \
+       [ ! -f "/mnt/config.sh" ] || \
+       [ ! -f "/mnt/utils.sh" ] || \
+       [ ! -f "/mnt/disk_strategies.sh" ] || \
+       [ ! -f "/mnt/dialogs.sh" ]; then
+        error_exit "One or more required script files not found in destination directory after copying."
+    fi
 
-log_info "Setting permissions for chroot scripts..."
+    log_info "Setting permissions for chroot scripts..."
     chmod +x /mnt/*.sh || error_exit "Failed to make chroot scripts executable."
     
     log_info "Exporting variables for chroot environment..."
-    # This is the crucial step you identified!
     export PARTITION_UUIDS_EFI_UUID PARTITION_UUIDS_EFI_PARTUUID PARTITION_UUIDS_ROOT_UUID PARTITION_UUIDS_BOOT_UUID PARTITION_UUIDS_SWAP_UUID PARTITION_UUIDS_HOME_UUID PARTITION_UUIDS_LUKS_CONTAINER_UUID PARTITION_UUIDS_LV_ROOT_UUID PARTITION_UUIDS_LV_SWAP_UUID PARTITION_UUIDS_LV_HOME_UUID
     export LUKS_CRYPTROOT_DEV LV_ROOT_PATH LV_SWAP_PATH LV_HOME_PATH VG_NAME
     export KERNEL_TYPE CPU_MICROCODE_TYPE TIMEZONE LOCALE KEYMAP REFLECTOR_COUNTRY_CODE SYSTEM_HOSTNAME
@@ -66,10 +63,9 @@ log_info "Setting permissions for chroot scripts..."
     export WANT_GRUB_THEME GRUB_THEME_CHOICE WANT_NUMLOCK_ON_BOOT
     export WANT_DOTFILES_DEPLOYMENT DOTFILES_REPO_URL DOTFILES_BRANCH
     export WANT_LVM WANT_ENCRYPTION WANT_RAID RAID_LEVEL
-    export -a RAID_DEVICES # Export arrays with -a flag
+    export -a RAID_DEVICES
 
     log_info "Executing chroot configuration script inside chroot..."
-    # We must pass the script name to the function
     run_in_chroot "./chroot_config.sh" || error_exit "Chroot configuration failed."
     log_info "Chroot setup complete."
     
