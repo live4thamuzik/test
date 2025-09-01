@@ -40,12 +40,14 @@ log_header "Stage 4: Post-Installation (Chroot) Configuration"
 # Use a single `cp` command to copy all necessary scripts.
 # We'll copy all .sh files from the source directory.
 log_info "Copying chroot configuration files from live installer to /mnt..."
-cp -r -v ./chroot_config.sh ./config.sh ./utils.sh /mnt || error_exit "Failed to copy all necessary scripts to chroot."
+cp -r -v ./chroot_config.sh ./config.sh ./utils.sh ./disk_strategies.sh ./dialogs.sh /mnt || error_exit "Failed to copy all necessary scripts to chroot."
 
 # Verify the files exist at the destination
 if [ ! -f "/mnt/chroot_config.sh" ] || \
    [ ! -f "/mnt/config.sh" ] || \
-   [ ! -f "/mnt/utils.sh" ]; then
+   [ ! -f "/mnt/utils.sh" ] || \
+   [ ! -f "/mnt/disk_strategies.sh" ]
+   [ ! -f "/mnt/dialogs.sh" ]; then
     error_exit "One or more required script files not found in destination directory after copying."
 fi
 
