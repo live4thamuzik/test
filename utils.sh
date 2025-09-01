@@ -570,10 +570,8 @@ save_current_config() {
 }
 
 run_in_chroot() {
-    local script_to_run="$1"
-    
-    log_info "Executing chroot script: ${script_to_run}"
-    arch-chroot /mnt /bin/bash -c "${script_to_run}" || error_exit "Chroot script execution failed: ${script_to_run}"
+    log_info "Executing chroot script"
+    arch-chroot /mnt /bin/bash -c ./archinstall/chroot-config.sh || error_exit "Chroot script execution failed: ${script_to_run}"
     
     log_info "Chroot script executed successfully."
     return 0
