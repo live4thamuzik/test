@@ -50,15 +50,26 @@ if [ ! -f "/mnt/chroot_config.sh" ] || \
 fi
 
 log_info "Setting permissions for chroot scripts..."
-# We can use a single `find` command to find all the copied files
-# and apply the executable permission at once.
-#find "$install_script_path_in_chroot" -type f -name "*.sh" -exec arch-chroot /mnt chmod +x {} \; || error_exit "Failed to make chroot scripts executable."
-chmod +x /mnt/*.sh || error_exit "Failed to make chroot scripts executable."
+    chmod +x /mnt/*.sh || error_exit "Failed to make chroot scripts executable."
+    
+    log_info "Exporting variables for chroot environment..."
+    # This is the crucial step you identified!
+    export PARTITION_UUIDS_EFI_UUID PARTITION_UUIDS_EFI_PARTUUID PARTITION_UUIDS_ROOT_UUID PARTITION_UUIDS_BOOT_UUID PARTITION_UUIDS_SWAP_UUID PARTITION_UUIDS_HOME_UUID PARTITION_UUIDS_LUKS_CONTAINER_UUID PARTITION_UUIDS_LV_ROOT_UUID PARTITION_UUIDS_LV_SWAP_UUID PARTITION_UUIDS_LV_HOME_UUID
+    export LUKS_CRYPTROOT_DEV LV_ROOT_PATH LV_SWAP_PATH LV_HOME_PATH VG_NAME
+    export KERNEL_TYPE CPU_MICROCODE_TYPE TIMEZONE LOCALE KEYMAP REFLECTOR_COUNTRY_CODE SYSTEM_HOSTNAME
+    export ROOT_PASSWORD MAIN_USERNAME MAIN_USER_PASSWORD
+    export DESKTOP_ENVIRONMENT DISPLAY_MANAGER GPU_DRIVER_TYPE BOOTLOADER_TYPE ENABLE_OS_PROBER
+    export WANT_MULTILIB WANT_AUR_HELPER AUR_HELPER_CHOICE WANT_FLATPAK
+    export INSTALL_CUSTOM_PACKAGES CUSTOM_PACKAGES INSTALL_CUSTOM_AUR_PACKAGES CUSTOM_AUR_PACKAGES
+    export WANT_GRUB_THEME GRUB_THEME_CHOICE WANT_NUMLOCK_ON_BOOT
+    export WANT_DOTFILES_DEPLOYMENT DOTFILES_REPO_URL DOTFILES_BRANCH
+    export WANT_LVM WANT_ENCRYPTION WANT_RAID RAID_LEVEL
+    export -a RAID_DEVICES # Export arrays with -a flag
 
-log_info "Executing chroot configuration script inside chroot..."
-run_in_chroot || error_exit "Chroot configuration failed."
-
-log_info "Chroot setup complete."
+    log_info "Executing chroot configuration script inside chroot..."
+    # We must pass the script name to the function
+    run_in_chroot "./chroot_config.sh" || error_exit "Chroot configuration failed."
+    log_info "Chroot setup complete."
     
     # Stage 5: Finalization
     log_header "Stage 5: Finalizing Installation"
