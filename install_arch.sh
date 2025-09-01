@@ -37,26 +37,15 @@ main() {
     # Stage 4: Chroot Configuration
 log_header "Stage 4: Post-Installation (Chroot) Configuration"
 
-# This is where we'll define the script's root directory.
-# It uses BASH_SOURCE to get the location of the currently executing script.
-local script_root_dir="$(dirname "${BASH_SOURCE[0]}")"
-
-# This variable will define the directory name inside the chroot where the scripts will be copied.
-local chroot_target_dir="archinstall"
-local install_script_path_in_chroot="/mnt/$chroot_target_dir"
-
-log_info "Creating chroot script directory at $install_script_path_in_chroot..."
-mkdir -p "$install_script_path_in_chroot" || error_exit "Failed to create target directory '$install_script_path_in_chroot'."
-
 # Use a single `cp` command to copy all necessary scripts.
 # We'll copy all .sh files from the source directory.
-log_info "Copying chroot configuration files from '$script_root_dir' to '$install_script_path_in_chroot'..."
-cp -v "$script_root_dir/"*.sh "$install_script_path_in_chroot/" || error_exit "Failed to copy all necessary scripts to chroot."
+log_info "Copying chroot configuration files from live installer to /mnt..."
+cp -r -v ./chroot_config.sh ./config.sh ./utils.sh /mnt || error_exit "Failed to copy all necessary scripts to chroot."
 
 # Verify the files exist at the destination
-if [ ! -f "$install_script_path_in_chroot/chroot_config.sh" ] || \
-   [ ! -f "$install_script_path_in_chroot/config.sh" ] || \
-   [ ! -f "$install_script_path_in_chroot/utils.sh" ]; then
+if [ ! -f "/mnt/chroot_config.sh" ] || \
+   [ ! -f "/mnt/config.sh" ] || \
+   [ ! -f "/mnt/utils.sh" ]; then
     error_exit "One or more required script files not found in destination directory after copying."
 fi
 
@@ -64,7 +53,7 @@ log_info "Setting permissions for chroot scripts..."
 # We can use a single `find` command to find all the copied files
 # and apply the executable permission at once.
 #find "$install_script_path_in_chroot" -type f -name "*.sh" -exec arch-chroot /mnt chmod +x {} \; || error_exit "Failed to make chroot scripts executable."
-chmod +x "$install_script_path_in_chroot"/*.sh || error_exit "Failed to make chroot scripts executable."
+chmod +x /mnt/*.sh || error_exit "Failed to make chroot scripts executable."
 
 log_info "Executing chroot configuration script inside chroot..."
 run_in_chroot || error_exit "Chroot configuration failed."
