@@ -8,6 +8,8 @@ set -euo pipefail
 # Source its own copy of config.sh and utils.sh from its copied location
 source ./config.sh
 source ./utils.sh
+source ./disk_strategies.sh
+source ./dialogs.sh
 
 # Note: Variables like INSTALL_DISK, ROOT_PASSWORD, etc. are now populated from the environment passed by install_arch.sh
 # Associative arrays like PARTITION_UUIDs are also exported (-A).
