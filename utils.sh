@@ -573,8 +573,7 @@ run_in_chroot() {
     local script_to_run="$1"
     
     log_info "Executing chroot script: ${script_to_run}"
-    # arch-chroot handles mounting /proc, /sys, /dev, etc.
-    arch-chroot /mnt "/bin/bash ${script_to_run}" || error_exit "Chroot script execution failed: ${script_to_run}"
+    arch-chroot /mnt /bin/bash -c "${script_to_run}" || error_exit "Chroot script execution failed: ${script_to_run}"
     
     log_info "Chroot script executed successfully."
     return 0
